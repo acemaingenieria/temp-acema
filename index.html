@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Reporte del Clima</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <div id="contenedorPrincipal" class="centrado">
+
+    <header class="header">
+      <h1 class="titulo">Reporte del Clima</h1>
+    </header>
+
+    <!-- Barra de búsqueda y el botón -->
+    <div class="search-panel">
+      <input id="ciudadInput" type="text" placeholder="Ingresa una ciudad" />
+      <button onclick="buscarClima()">Consultar</button>
+    </div>
+
+    <!-- Mensaje de bienvenida cuando no hay consulta -->
+    <div id="mensajeBienvenida" class="mensaje">
+      <p>¡Ingresa una ciudad para consultar el clima!</p>
+    </div>
+
+    <main id="dashboard" class="oculto">
+      <section id="datosClima" class="weather-card">
+        <h2 id="nombreCiudad"></h2>
+        <p><strong>Fecha:</strong> <span id="fechaClima"></span></p>
+        <p><strong>Temperatura:</strong> <span id="temp"></span> °C</p>
+        <p><strong>Sensación térmica:</strong> <span id="feels"></span> °C</p>
+        <p><strong>Humedad:</strong> <span id="humedad"></span>%</p>
+        <p><strong>Viento:</strong> <span id="viento"></span> m/s</p>
+        <p><strong>Índice UV:</strong> <span id="uv"></span></p>
+      </section>
+
+      <section class="chart-card">
+        <h3>Gráfico del clima</h3>
+        <canvas id="graficoTemperatura"></canvas>
+      </section>
+
+      <div class="volver">
+        <button onclick="eliminarBusqueda()">Eliminar búsqueda</button>
+      </div>
+    </main>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
