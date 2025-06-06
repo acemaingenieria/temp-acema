@@ -1,55 +1,921 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Reporte del Clima</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Reporte Climático Acema</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <style>
+      html,
+      body {
+        height: 100%;
+        min-height: 100vh;
+      }
+      body {
+        font-family: "Segoe UI", "Roboto", Arial, sans-serif;
+        background: #f4f6fa;
+        color: #1a2332;
+        margin: 0;
+        min-height: 100vh;
+        letter-spacing: 0.01em;
+        display: flex;
+        flex-direction: column;
+      }
+      #__main-wrapper {
+        flex: 1 0 auto;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+      }
+      header {
+        background: linear-gradient(90deg, #1a2332 70%, #0056b3 100%);
+        color: #fff;
+        box-shadow: 0 2px 12px rgba(34, 46, 60, 0.08);
+        border-bottom: 4px solid #0056b3;
+        padding: 0.5rem 0;
+        min-height: 72px;
+      }
+      .navbar-brand {
+        font-size: 1.5rem;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+      }
+      .navbar-brand i {
+        font-size: 2rem;
+        color: #20c997;
+      }
+      .input-group .form-control {
+        border-radius: 0.5rem 0 0 0.5rem;
+        min-width: 220px;
+        border: 1.5px solid #b6c1d2;
+        background: #f5f7fa;
+        font-size: 1.05rem;
+        color: #222e3c;
+        padding: 0.75rem 1rem;
+        transition: border-color 0.15s;
+      }
+      .input-group .btn {
+        border-radius: 0 0.5rem 0.5rem 0;
+        background: linear-gradient(90deg, #0d6efd 80%, #20c997 100%);
+        color: #fff;
+        font-weight: 600;
+        border: none;
+        transition: background 0.15s;
+        padding: 0.75rem 1.25rem;
+        letter-spacing: 0.02em;
+      }
+      .input-group .btn:hover {
+        background: linear-gradient(90deg, #0b5ed7 80%, #198754 100%);
+      }
+      #btnLimpiar {
+        border-radius: 0.5rem;
+        margin-left: 0.5rem;
+        background: #e9ecef;
+        color: #495057;
+        border: none;
+        transition: background 0.15s;
+        padding: 0.75rem 1.1rem;
+        font-weight: 500;
+      }
+      #btnLimpiar:hover {
+        background: #dee2e6;
+      }
+      main.container {
+        padding-top: 110px;
+        max-width: 1100px;
+        margin: 0 auto;
+        background: #fff;
+        /* border-radius: 1.25rem; */ /* Quitado */
+        box-shadow: 0 4px 32px rgba(34, 46, 60, 0.1);
+        padding-bottom: 2.5rem;
+        padding-left: 2.5rem;
+        padding-right: 2.5rem;
+        border: 1px solid #e3e7ed;
+        border-radius: 0 !important;
+      }
+      h1,
+      h2,
+      h3 {
+        font-weight: 700;
+        color: #1a2332;
+        letter-spacing: 0.01em;
+        font-family: "Segoe UI Semibold", "Segoe UI", "Roboto", Arial,
+          sans-serif;
+      }
+      .section-title {
+        border-left: 5px solid #0d6efd;
+        padding-left: 0.7rem;
+        margin-bottom: 1rem;
+        font-size: 1.4rem;
+        color: #0056b3;
+        background: #f4f8fc;
+        border-radius: 0.2rem;
+      }
+      .section-description {
+        color: #6c757d;
+        font-size: 1.05rem;
+        margin-bottom: 1.2rem;
+      }
+      .card {
+        border: 1px solid #d1d7e0;
+        /* border-radius: 1rem; */ /* Quitado */
+        border-radius: 0 !important;
+        box-shadow: 0 2px 12px rgba(34, 46, 60, 0.07);
+        background-color: #f7fafd;
+        padding: 1.5rem 2rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        transition: box-shadow 0.2s, border-color 0.2s;
+      }
+      .card .bi {
+        font-size: 2.2rem;
+        margin-bottom: 0.5rem;
+      }
+      #iconoClimaActual {
+        font-size: 4.5rem;
+        color: #0d6efd;
+        filter: drop-shadow(0 2px 6px rgba(13, 110, 253, 0.1));
+        margin-bottom: 0.5rem;
+      }
+      #graficoTemperatura {
+        width: 100% !important;
+        height: 340px !important;
+        background: #f8fafc;
+        /* border-radius: 1rem; */ /* Quitado */
+        border-radius: 0 !important;
+        border: 1px solid #e3e7ed;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 12px rgba(34, 46, 60, 0.06);
+      }
+      #mapa {
+        width: 100%;
+        height: 340px;
+        min-height: 220px;
+        /* border-radius: 1rem; */ /* Quitado */
+        border-radius: 0 !important;
+        border: 1px solid #e3e7ed;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 12px rgba(34, 46, 60, 0.06);
+        overflow: hidden;
+        background: #e9ecef;
+        position: relative;
+        z-index: 1;
+      }
+      .table-climate-summary th {
+        width: 60%;
+        color: #0056b3;
+        font-weight: 600;
+      }
+      .table-climate-summary td {
+        font-weight: 500;
+      }
+      .export-btn {
+        float: right;
+        margin-bottom: 1rem;
+        margin-top: -0.5rem;
+      }
+      .divider {
+        border-top: 2px solid #e3e7ed;
+        margin: 2rem 0 2rem 0;
+      }
+      footer {
+        font-size: 0.95rem;
+        background: linear-gradient(90deg, #1a2332 60%, #0d6efd 100%);
+        color: #fff;
+        text-align: center;
+        padding: 0.5rem 0;
+        border-top: 2px solid #0d6efd;
+        box-shadow: 0 -2px 12px rgba(34, 46, 60, 0.08);
+        /* border-radius: 0 0 1.25rem 1.25rem; */ /* Quitado */
+        border-radius: 0 !important;
+        margin-top: 0;
+        flex-shrink: 0;
+      }
+      /* --- Card Hover Effect --- */
+      .card:hover,
+      .card:focus-within {
+        box-shadow: 0 6px 24px rgba(34, 46, 60, 0.18);
+        border-color: #0d6efd;
+        z-index: 2;
+      }
+      @media (max-width: 900px) {
+        main.container {
+          padding-left: 1rem;
+          padding-right: 1rem;
+        }
+        #graficoTemperatura,
+        #mapa {
+          height: 220px !important;
+        }
+      }
+      @media (max-width: 576px) {
+        main.container {
+          padding-left: 0.5rem;
+          padding-right: 0.5rem;
+        }
+        #graficoTemperatura,
+        #mapa {
+          height: 140px !important;
+        }
+        .card {
+          padding: 1rem 0.5rem;
+        }
+        .section-title {
+          font-size: 1.1rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="__main-wrapper">
+      <header class="fixed-top">
+        <nav
+          class="container d-flex align-items-center justify-content-between"
+        >
+          <a class="navbar-brand" href="#">
+            <i class="bi bi-cloud-sun-fill"></i>
+            Reporte Climático Acema
+          </a>
+          <div
+            class="input-group w-auto"
+            role="search"
+            aria-label="Buscar ciudad"
+          >
+            <input
+              type="text"
+              id="inputCiudad"
+              class="form-control"
+              placeholder="Ingrese nombre de ciudad"
+              aria-label="Ciudad para consulta climática"
+            />
+            <button
+              class="btn btn-primary"
+              id="btnBuscar"
+              aria-label="Buscar clima"
+            >
+              Buscar
+            </button>
+            <button
+              class="btn btn-light"
+              id="btnLimpiar"
+              aria-label="Limpiar búsqueda"
+            >
+              <i class="bi bi-x-circle"></i>
+            </button>
+          </div>
+        </nav>
+      </header>
 
-  <div id="contenedorPrincipal" class="centrado">
-
-    <header class="header">
-      <h1 class="titulo">Reporte del Clima</h1>
-    </header>
-
-    <!-- Barra de búsqueda y el botón -->
-    <div class="search-panel">
-      <input id="ciudadInput" type="text" placeholder="Ingresa una ciudad" />
-      <button onclick="buscarClima()">Consultar</button>
+      <main class="container">
+        <div
+          id="loadingIndicator"
+          class="d-none justify-content-center align-items-center py-5"
+        >
+          <div class="text-center">
+            <div
+              class="spinner-border text-primary mb-3"
+              role="status"
+              aria-label="Cargando..."
+            >
+              <span class="visually-hidden">Cargando...</span>
+            </div>
+            <div class="fw-bold">Cargando datos climáticos...</div>
+          </div>
+        </div>
+        <div id="infoInicial" class="text-center py-5 text-muted">
+          <i class="bi bi-info-circle fs-1 mb-3"></i>
+          <h2>Bienvenido al Reporte Climático Acema</h2>
+          <p>
+            Ingrese el nombre de una ciudad y presione "Buscar" para ver el
+            reporte climático.
+          </p>
+        </div>
+        <div id="infoAdicional" class="text-center py-2 text-secondary small">
+          <p>
+            Plataforma desarrollada por <strong>Acema Ingeniería</strong> para
+            proporcionar información climática detallada y confiable para la
+            toma de decisiones empresariales.
+          </p>
+        </div>
+        <section
+          id="dashboard"
+          class="d-none"
+          aria-live="polite"
+          aria-relevant="all"
+        >
+          <div id="detallesCiudad"></div>
+          <div class="divider"></div>
+          <div class="mb-4">
+            <div class="section-title">Estado Actual del Clima</div>
+            <p class="section-description">
+              Información meteorológica en tiempo real para la ciudad
+              consultada. Incluye temperatura, máximas y mínimas, precipitación,
+              humedad, viento, presión, visibilidad y condiciones generales.
+            </p>
+          </div>
+          <div class="row mb-5 bg-white p-4 rounded shadow-sm">
+            <div class="col-md-6 border-end">
+              <h3 id="nombreCiudad" class="fw-bold fs-3">Ciudad</h3>
+              <p id="fechaClima" class="text-muted fs-6">
+                Fecha y hora de actualización
+              </p>
+              <div class="d-flex align-items-center gap-3 my-3">
+                <i id="iconoClimaActual" class="bi fs-1"></i>
+                <p class="fs-1 fw-bold mb-0"><span id="temp">--</span></p>
+              </div>
+              <p
+                id="descripcionClima"
+                class="text-capitalize fs-5 fst-italic text-secondary"
+              >
+                Descripción del clima
+              </p>
+            </div>
+            <div class="col-md-6">
+              <table class="table table-borderless table-climate-summary">
+                <tbody>
+                  <tr>
+                    <th>Temperatura Máxima</th>
+                    <td id="tempMax">--</td>
+                  </tr>
+                  <tr>
+                    <th>Temperatura Mínima</th>
+                    <td id="tempMin">--</td>
+                  </tr>
+                  <tr>
+                    <th>Precipitación</th>
+                    <td id="precipitacion">--</td>
+                  </tr>
+                  <tr>
+                    <th>Humedad Relativa</th>
+                    <td id="humedad">--</td>
+                  </tr>
+                  <tr>
+                    <th>Velocidad del Viento</th>
+                    <td id="viento">--</td>
+                  </tr>
+                  <tr>
+                    <th>Dirección del Viento</th>
+                    <td id="direccionViento">--</td>
+                  </tr>
+                  <tr>
+                    <th>Presión Atmosférica</th>
+                    <td id="presion">--</td>
+                  </tr>
+                  <tr>
+                    <th>Visibilidad</th>
+                    <td id="visibilidad">--</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div class="mb-4">
+            <div class="section-title">
+              Tendencia de Temperaturas y Precipitaciones
+            </div>
+            <p class="section-description">
+              Gráfico detallado que muestra la evolución prevista de las
+              temperaturas máximas y mínimas diarias junto con las
+              precipitaciones acumuladas para los próximos 7 días.
+            </p>
+          </div>
+          <div class="row mb-5 bg-white p-4 rounded shadow-sm">
+            <div class="col">
+              <canvas
+                id="graficoTemperatura"
+                aria-label="Gráfico de temperaturas y precipitaciones"
+                role="img"
+              ></canvas>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div class="mb-4">
+            <div class="section-title">
+              Ubicación Geográfica y Contexto Climático
+            </div>
+            <p class="section-description">
+              Mapa interactivo que indica la ubicación exacta de la ciudad
+              consultada, así como su entorno geográfico.
+            </p>
+          </div>
+          <div class="row mb-5 bg-white p-3 rounded shadow-sm">
+            <div class="col">
+              <div
+                id="mapa"
+                aria-label="Mapa de ubicación geográfica"
+                role="region"
+                tabindex="0"
+              ></div>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div class="mb-4 d-flex align-items-center justify-content-between">
+            <div class="section-title mb-0">
+              Histórico de Condiciones Climáticas
+            </div>
+            <button
+              class="btn btn-outline-primary export-btn"
+              id="btnExportarHistorico"
+              style="display: none"
+            >
+              <i class="bi bi-download"></i> Exportar Histórico (CSV)
+            </button>
+          </div>
+          <p class="section-description">
+            Registro detallado de las condiciones meteorológicas de los últimos
+            días. Incluye datos de temperatura, humedad, precipitaciones, viento
+            y otros parámetros relevantes.
+          </p>
+          <div
+            class="row"
+            id="cardsHistorico"
+            aria-live="polite"
+            aria-label="Histórico del clima"
+          ></div>
+        </section>
+      </main>
     </div>
+    <footer>
+      &copy; 2025 - Sistema de Consulta del Clima | Acema Ingeniería<br />
+      <small>by dobleu</small>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <!-- ... El resto de tu JS permanece igual ... -->
+    <script>
+      // --- Variables globales ---
+      let chart = null,
+        mapa = null,
+        marcador = null,
+        historicoCSV = "";
 
-    <!-- Mensaje de bienvenida cuando no hay consulta -->
-    <div id="mensajeBienvenida" class="mensaje">
-      <p>¡Ingresa una ciudad para consultar el clima!</p>
-    </div>
+      // --- Iconos y descripciones según código de clima ---
+      function obtenerIconoClima(codigo) {
+        // Bootstrap Icons
+        if (codigo === undefined || codigo === null)
+          return "bi-cloud-slash-fill";
+        if (codigo === 0) return "bi-sun-fill";
+        if ([1, 2].includes(codigo)) return "bi-cloud-sun-fill";
+        if (codigo === 3) return "bi-clouds-fill";
+        if ([45, 48].includes(codigo)) return "bi-cloud-fog-fill";
+        if ([51, 53, 55, 80].includes(codigo)) return "bi-cloud-drizzle-fill";
+        if ([61, 63, 81].includes(codigo)) return "bi-cloud-rain-fill";
+        if ([65, 82].includes(codigo)) return "bi-cloud-rain-heavy-fill";
+        if ([66, 67].includes(codigo)) return "bi-cloud-sleet-fill";
+        if ([71, 73, 75, 85, 86].includes(codigo)) return "bi-cloud-snow-fill";
+        if (codigo === 77) return "bi-cloud-hail-fill";
+        if (codigo === 95) return "bi-cloud-lightning-fill";
+        if ([96, 99].includes(codigo)) return "bi-cloud-lightning-rain-fill";
+        return "bi-cloud-fill";
+      }
+      function descripcionClima(codigo) {
+        if (codigo === undefined || codigo === null) return "Sin datos";
+        if (codigo === 0) return "Despejado";
+        if ([1, 2].includes(codigo)) return "Parcialmente nublado";
+        if (codigo === 3) return "Nublado";
+        if ([45, 48].includes(codigo)) return "Niebla";
+        if ([51, 53, 55, 80].includes(codigo)) return "Llovizna";
+        if ([61, 63, 81].includes(codigo)) return "Lluvia ligera";
+        if ([65, 82].includes(codigo)) return "Lluvia fuerte";
+        if ([66, 67].includes(codigo)) return "Aguanieve";
+        if ([71, 73, 75, 85, 86].includes(codigo)) return "Nieve";
+        if (codigo === 77) return "Granizo";
+        if (codigo === 95) return "Tormenta";
+        if ([96, 99].includes(codigo)) return "Tormenta con lluvia";
+        return "Nublado";
+      }
 
-    <main id="dashboard" class="oculto">
-      <section id="datosClima" class="weather-card">
-        <h2 id="nombreCiudad"></h2>
-        <p><strong>Fecha:</strong> <span id="fechaClima"></span></p>
-        <p><strong>Temperatura:</strong> <span id="temp"></span> °C</p>
-        <p><strong>Sensación térmica:</strong> <span id="feels"></span> °C</p>
-        <p><strong>Humedad:</strong> <span id="humedad"></span>%</p>
-        <p><strong>Viento:</strong> <span id="viento"></span> m/s</p>
-        <p><strong>Índice UV:</strong> <span id="uv"></span></p>
-      </section>
+      // --- Mostrar/ocultar secciones ---
+      function mostrarDashboard() {
+        document.getElementById("dashboard").classList.remove("d-none");
+        document.getElementById("infoInicial").classList.add("d-none");
+        document.getElementById("infoAdicional").classList.add("d-none");
+      }
+      function mostrarInfoInicial() {
+        document.getElementById("dashboard").classList.add("d-none");
+        document.getElementById("infoInicial").classList.remove("d-none");
+        document.getElementById("infoAdicional").classList.remove("d-none");
+      }
 
-      <section class="chart-card">
-        <h3>Gráfico del clima</h3>
-        <canvas id="graficoTemperatura"></canvas>
-      </section>
+      // --- Buscar clima principal ---
+      async function buscarClima() {
+        const ciudad = document.getElementById("inputCiudad").value.trim();
+        if (!ciudad) return alert("Ingresa una ciudad");
 
-      <div class="volver">
-        <button onclick="eliminarBusqueda()">Eliminar búsqueda</button>
-      </div>
-    </main>
+        document.getElementById("loadingIndicator").classList.remove("d-none");
+        document.getElementById("dashboard").classList.add("d-none");
 
-  </div>
+        try {
+          const geo = await fetch(
+            `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(
+              ciudad
+            )}&count=1&language=es`
+          ).then((res) => res.json());
+          if (!geo.results || geo.results.length === 0)
+            throw new Error("Ciudad no encontrada");
 
-  <script src="script.js"></script>
-</body>
+          window.ultimaGeo = geo;
+          const { latitude, longitude, name } = geo.results[0];
+          const today = new Date();
+          const start = new Date(today);
+          start.setDate(start.getDate() - 9);
+          const start_date = start.toISOString().split("T")[0];
+          const end_date = today.toISOString().split("T")[0];
+
+          const urlActual = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,weathercode&hourly=relative_humidity_2m,pressure_msl,visibility,winddirection_10m&timezone=auto`;
+          const urlHistorial = `https://archive-api.open-meteo.com/v1/archive?latitude=${latitude}&longitude=${longitude}&start_date=${start_date}&end_date=${end_date}&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,weathercode&timezone=auto`;
+
+          const [dataActual, dataHistorial] = await Promise.all([
+            fetch(urlActual).then((res) => res.json()),
+            fetch(urlHistorial).then((res) => res.json()),
+          ]);
+
+          // Extraer datos horarios para el momento actual
+          if (dataActual && dataActual.current_weather && dataActual.hourly) {
+            const currentTime = dataActual.current_weather.time;
+            const idx = dataActual.hourly.time.findIndex(
+              (t) => t === currentTime
+            );
+            dataActual.current_weather.relative_humidity_2m =
+              idx !== -1 && dataActual.hourly.relative_humidity_2m
+                ? dataActual.hourly.relative_humidity_2m[idx]
+                : null;
+            dataActual.current_weather.pressure_msl =
+              idx !== -1 && dataActual.hourly.pressure_msl
+                ? dataActual.hourly.pressure_msl[idx]
+                : null;
+            dataActual.current_weather.visibility =
+              idx !== -1 && dataActual.hourly.visibility
+                ? dataActual.hourly.visibility[idx]
+                : null;
+            dataActual.current_weather.winddirection_10m =
+              idx !== -1 && dataActual.hourly.winddirection_10m
+                ? dataActual.hourly.winddirection_10m[idx]
+                : null;
+          }
+
+          mostrarDatos(name, dataActual, dataHistorial);
+        } catch (error) {
+          document.getElementById("loadingIndicator").classList.add("d-none");
+          alert("Error al obtener el clima: " + (error.message || error));
+        }
+      }
+
+      // --- Mostrar datos en dashboard ---
+      function mostrarDatos(ciudad, dataActual, dataHistorial) {
+        document.getElementById("loadingIndicator").classList.add("d-none");
+        mostrarDashboard();
+
+        // Detalles de la ciudad
+        if (
+          window.ultimaGeo &&
+          window.ultimaGeo.results &&
+          window.ultimaGeo.results.length > 0
+        ) {
+          const geo = window.ultimaGeo.results[0];
+          document.getElementById("detallesCiudad").innerHTML = `
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <ul class="list-group">
+                <li class="list-group-item"><strong>Nombre:</strong> ${
+                  geo.name ?? "N/D"
+                }</li>
+                <li class="list-group-item"><strong>País:</strong> ${
+                  geo.country ?? "N/D"
+                } (${geo.country_code ?? "N/D"})</li>
+                <li class="list-group-item"><strong>Departamento:</strong> ${
+                  geo.admin1 ?? "N/D"
+                }</li>
+                <li class="list-group-item"><strong>Municipio:</strong> ${
+                  geo.admin2 ?? "N/D"
+                }</li>
+                <li class="list-group-item"><strong>Población:</strong> ${
+                  geo.population ?? "N/D"
+                }</li>
+              </ul>
+            </div>
+            <div class="col-md-6">
+              <ul class="list-group">
+                <li class="list-group-item"><strong>Latitud:</strong> ${
+                  geo.latitude ?? "N/D"
+                }</li>
+                <li class="list-group-item"><strong>Longitud:</strong> ${
+                  geo.longitude ?? "N/D"
+                }</li>
+                <li class="list-group-item"><strong>Elevación:</strong> ${
+                  geo.elevation ?? "N/D"
+                } m</li>
+                <li class="list-group-item"><strong>Zona horaria:</strong> ${
+                  geo.timezone ?? "N/D"
+                }</li>
+                <li class="list-group-item"><strong>Feature code:</strong> ${
+                  geo.feature_code ?? "N/D"
+                }</li>
+              </ul>
+            </div>
+          </div>
+        `;
+        }
+
+        // Datos actuales
+        const actual = dataActual.current_weather;
+        const daily = dataActual.daily;
+        document.getElementById("nombreCiudad").textContent = ciudad;
+        document.getElementById("fechaClima").textContent = actual?.time
+          ? new Date(actual.time).toLocaleString("es-ES")
+          : "N/D";
+        let weathercodeActual = actual?.weathercode;
+        if (
+          weathercodeActual === undefined &&
+          daily &&
+          Array.isArray(daily.time)
+        ) {
+          const hoy = actual?.time ? actual.time.split("T")[0] : null;
+          const idx = hoy ? daily.time.findIndex((d) => d === hoy) : -1;
+          if (
+            idx !== -1 &&
+            daily.weathercode &&
+            daily.weathercode[idx] !== undefined
+          ) {
+            weathercodeActual = daily.weathercode[idx];
+          }
+        }
+        document.getElementById(
+          "iconoClimaActual"
+        ).className = `bi ${obtenerIconoClima(weathercodeActual)}`;
+        document.getElementById("descripcionClima").textContent =
+          descripcionClima(weathercodeActual);
+
+        document.getElementById("temp").textContent =
+          actual?.temperature !== undefined
+            ? `${Number(actual.temperature).toFixed(1)}°C`
+            : "N/D";
+
+        // Temperatura máxima y mínima del día actual
+        let tempMax = "N/D",
+          tempMin = "N/D",
+          precip = "N/D";
+        if (daily && Array.isArray(daily.time)) {
+          const hoy = actual?.time ? actual.time.split("T")[0] : null;
+          const idx = hoy ? daily.time.findIndex((d) => d === hoy) : -1;
+          if (idx !== -1) {
+            tempMax =
+              daily.temperature_2m_max?.[idx] !== undefined
+                ? `${Number(daily.temperature_2m_max[idx]).toFixed(1)}°C`
+                : "N/D";
+            tempMin =
+              daily.temperature_2m_min?.[idx] !== undefined
+                ? `${Number(daily.temperature_2m_min[idx]).toFixed(1)}°C`
+                : "N/D";
+            precip =
+              daily.precipitation_sum?.[idx] !== undefined
+                ? `${Number(daily.precipitation_sum[idx]).toFixed(1)} mm`
+                : "N/D";
+          }
+        }
+        document.getElementById("tempMax").textContent = tempMax;
+        document.getElementById("tempMin").textContent = tempMin;
+        document.getElementById("precipitacion").textContent = precip;
+        document.getElementById("humedad").textContent =
+          actual?.relative_humidity_2m !== undefined
+            ? `${Number(actual.relative_humidity_2m).toFixed(0)} %`
+            : "N/D";
+        document.getElementById("viento").textContent =
+          actual?.windspeed !== undefined
+            ? `${Number(actual.windspeed).toFixed(1)} km/h`
+            : "N/D";
+        document.getElementById("direccionViento").textContent =
+          actual?.winddirection_10m !== undefined
+            ? `${Number(actual.winddirection_10m).toFixed(0)}°`
+            : "N/D";
+        document.getElementById("presion").textContent =
+          actual?.pressure_msl !== undefined
+            ? `${Number(actual.pressure_msl).toFixed(0)} hPa`
+            : "N/D";
+        document.getElementById("visibilidad").textContent =
+          actual?.visibility !== undefined
+            ? `${(Number(actual.visibility) / 1000).toFixed(1)} km`
+            : "N/D";
+
+        dibujarGrafico(daily);
+        mostrarMapa(dataActual.latitude, dataActual.longitude, ciudad);
+        mostrarHistoricoClima(ciudad, dataHistorial);
+      }
+
+      // --- Gráfico de temperaturas ---
+      function dibujarGrafico(daily) {
+        const ctx = document
+          .getElementById("graficoTemperatura")
+          .getContext("2d");
+        if (chart) chart.destroy();
+        chart = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: daily.time.map((date) =>
+              new Date(date).toLocaleDateString("es-ES", {
+                weekday: "short",
+                day: "numeric",
+              })
+            ),
+            datasets: [
+              {
+                label: "Temp Máx",
+                data: daily.temperature_2m_max,
+                borderColor: "#dc3545",
+                backgroundColor: "#dc354570",
+                tension: 0.3,
+                pointRadius: 4,
+                pointBackgroundColor: "#dc3545",
+              },
+              {
+                label: "Temp Mín",
+                data: daily.temperature_2m_min,
+                borderColor: "#0d6efd",
+                backgroundColor: "#0d6efd70",
+                tension: 0.3,
+                pointRadius: 4,
+                pointBackgroundColor: "#0d6efd",
+              },
+              {
+                label: "Precipitación (mm)",
+                data: daily.precipitation_sum,
+                borderColor: "#20c997",
+                backgroundColor: "#20c99770",
+                type: "bar",
+                yAxisID: "y2",
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { position: "top" },
+              tooltip: { mode: "index", intersect: false },
+            },
+            interaction: { mode: "nearest", axis: "x", intersect: false },
+            scales: {
+              y: {
+                beginAtZero: false,
+                title: { display: true, text: "°C" },
+              },
+              y2: {
+                beginAtZero: true,
+                position: "right",
+                title: { display: true, text: "mm" },
+                grid: { drawOnChartArea: false },
+              },
+            },
+          },
+        });
+      }
+
+      // --- Mapa Leaflet ---
+      function mostrarMapa(lat, lon, ciudad) {
+        if (mapa) {
+          mapa.remove();
+          mapa = null;
+          marcador = null;
+        }
+        setTimeout(() => {
+          mapa = L.map("mapa").setView([lat, lon], 10);
+          L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            maxZoom: 18,
+            attribution: "&copy; OpenStreetMap contributors",
+          }).addTo(mapa);
+          marcador = L.marker([lat, lon])
+            .addTo(mapa)
+            .bindPopup(ciudad)
+            .openPopup();
+          setTimeout(() => {
+            mapa.invalidateSize();
+          }, 200);
+        }, 200);
+      }
+
+      // --- Tarjetas histórico y exportar CSV ---
+      function mostrarHistoricoClima(ciudad, dataHistorial) {
+        const cardsHistorico = document.getElementById("cardsHistorico");
+        cardsHistorico.innerHTML = "";
+        historicoCSV =
+          "Fecha,Clima,Temp Máx (°C),Temp Mín (°C),Precipitación (mm)\n";
+        const btnExportar = document.getElementById("btnExportarHistorico");
+
+        if (
+          !dataHistorial ||
+          !dataHistorial.daily ||
+          !Array.isArray(dataHistorial.daily.time) ||
+          !Array.isArray(dataHistorial.daily.temperature_2m_max) ||
+          !Array.isArray(dataHistorial.daily.temperature_2m_min) ||
+          !Array.isArray(dataHistorial.daily.precipitation_sum)
+        ) {
+          cardsHistorico.innerHTML =
+            '<div class="alert alert-warning">No hay datos históricos disponibles para esta ciudad.</div>';
+          btnExportar.style.display = "none";
+          return;
+        }
+
+        const fechas = dataHistorial.daily.time;
+        const tempMax = dataHistorial.daily.temperature_2m_max;
+        const tempMin = dataHistorial.daily.temperature_2m_min;
+        const precip = dataHistorial.daily.precipitation_sum;
+        const weatherCodes = dataHistorial.daily.weathercode || [];
+
+        // Tomar los últimos 10 días
+        const start = Math.max(0, fechas.length - 10);
+        for (let i = start; i < fechas.length; i++) {
+          const weatherCode = weatherCodes[i] ?? null;
+          const icon = obtenerIconoClima(weatherCode);
+          const desc = descripcionClima(weatherCode);
+          const fechaStr = new Date(fechas[i]).toLocaleDateString("es-ES");
+          historicoCSV += `"${fechaStr}","${desc}",${tempMax[i] ?? ""},${
+            tempMin[i] ?? ""
+          },${precip[i] ?? ""}\n`;
+
+          const card = document.createElement("div");
+          card.className = "col-md-4 mb-3";
+          card.innerHTML = `
+          <div class="card h-100 shadow-sm">
+            <div class="card-body text-center">
+              <h5 class="card-title">${ciudad}</h5>
+              <p class="text-muted mb-1">${fechaStr}</p>
+              <i class="bi ${icon}" style="font-size: 2.5rem; color: #0d6efd;"></i>
+              <p class="mb-1"><strong>${desc}</strong></p>
+              <p class="mb-1"><strong>Máx:</strong> ${
+                tempMax[i] !== undefined && tempMax[i] !== null
+                  ? tempMax[i].toFixed(1)
+                  : "Sin dato"
+              }°C</p>
+              <p class="mb-1"><strong>Mín:</strong> ${
+                tempMin[i] !== undefined && tempMin[i] !== null
+                  ? tempMin[i].toFixed(1)
+                  : "Sin dato"
+              }°C</p>
+              <p class="mb-1"><strong>Precip:</strong> ${
+                precip[i] !== undefined && precip[i] !== null
+                  ? precip[i].toFixed(1)
+                  : "Sin dato"
+              } mm</p>
+            </div>
+          </div>
+        `;
+          cardsHistorico.appendChild(card);
+        }
+        btnExportar.style.display = "inline-block";
+      }
+
+      // --- Exportar CSV ---
+      document.getElementById("btnExportarHistorico").onclick = function () {
+        const blob = new Blob([historicoCSV], { type: "text/csv" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "historico_clima.csv";
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }, 100);
+      };
+
+      // --- Eventos UI ---
+      document.getElementById("btnBuscar").onclick = buscarClima;
+      document
+        .getElementById("inputCiudad")
+        .addEventListener("keypress", (e) => {
+          if (e.key === "Enter") buscarClima();
+        });
+      document.getElementById("btnLimpiar").onclick = () => {
+        document.getElementById("inputCiudad").value = "";
+        mostrarInfoInicial();
+        if (mapa) {
+          mapa.remove();
+          mapa = null;
+        }
+        document.getElementById("detallesCiudad").innerHTML = "";
+        document.getElementById("cardsHistorico").innerHTML = "";
+        document.getElementById("btnExportarHistorico").style.display = "none";
+      };
+
+      // --- Inicialización ---
+      mostrarInfoInicial();
+    </script>
+  </body>
 </html>
